@@ -1,0 +1,18 @@
+{
+    "id": "muzansano/aimo3-solver-submission-final",
+    "title": "AIMO3 Solver Submission Final",
+    "code_file": "notebooks/aimo3_kaggle_ready.ipynb",
+    "language": "python",
+    "kernel_type": "notebook",
+    "is_private": true,
+    "enable_gpu": true,
+    "enable_internet": false,
+    "dataset_sources": [
+        "muzansano/aimo-solver-phase4",
+        "muzansano/model-gpt2"
+    ],
+    "competition_sources": [
+        "ai-mathematical-olympiad-progress-prize-3"
+    ],
+    "kernel_sources": []
+}

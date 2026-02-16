@@ -1,0 +1,10 @@
+{
+	"servers": {
+		"mcp.json": {
+			"type": "stdio",
+			"command": "mcp.sjon",
+			"args": []
+		}
+	},
+	"inputs": []
+}

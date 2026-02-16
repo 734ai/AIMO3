@@ -1,0 +1,23 @@
+{
+  "base_model": "gpt2",
+  "use_lora": true,
+  "lora_rank": 8,
+  "lora_alpha": 16,
+  "batch_size": 4,
+  "gradient_accumulation_steps": 4,
+  "num_epochs": 3,
+  "learning_rate": 5e-05,
+  "warmup_steps": 100,
+  "weight_decay": 0.01,
+  "max_grad_norm": 1.0,
+  "max_seq_length": 512,
+  "train_ratio": 0.8,
+  "val_ratio": 0.1,
+  "test_ratio": 0.1,
+  "use_mixed_precision": true,
+  "use_gradient_checkpointing": true,
+  "save_every_steps": 500,
+  "eval_every_steps": 100,
+  "output_dir": "outputs/fine_tuned_model",
+  "log_dir": "logs/fine_tuning"
+}

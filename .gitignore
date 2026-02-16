@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.kaggle/
+kaggle.json
+hugging-face-key.json
+*.h5
+*.safetensors
+*.bin
+*.ot
+models/gpt2/
+kaggle_dataset/

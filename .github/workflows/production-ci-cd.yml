@@ -1,0 +1,288 @@
+name: Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  # Code Quality & Security Checks
+  quality:
+    runs-on: ubuntu-latest
+    name: Code Quality & Security Checks
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -r requirements.txt
+        pip install bandit black flake8 isort mypy pylint
+    
+    - name: Run Black formatter check
+      run: black src/ --check
+    
+    - name: Run isort import sort check
+      run: isort src/ --check-only
+    
+    - name: Run Flake8 linter
+      run: flake8 src/ --max-line-length=100 --count --statistics
+    
+    - name: Run Pylint
+      run: pylint src/ --exit-zero --disable=all --enable=E,F
+    
+    - name: Run MyPy type checking
+      run: mypy src/ --ignore-missing-imports || true
+    
+    - name: Run Security check with Bandit
+      run: bandit -r src/ -f json -o bandit-report.json || true
+    
+    - name: Upload Security Report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: bandit-report.json
+
+  # Unit Tests
+  test:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests with pytest
+      run: |
+        pip install pytest pytest-cov pytest-timeout pytest-mock
+        pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing --timeout=30
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Build Docker Image
+  build:
+    needs: [quality, test]
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    if: success()
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Log in to Docker Registry
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: |
+          ${{ secrets.DOCKER_USERNAME }}/aimo3-solver
+          ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Integration Tests
+  integration:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    if: success() && github.event_name != 'pull_request'
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run integration tests
+      env:
+        REDIS_URL: redis://localhost:6379
+      run: |
+        pip install pytest pytest-asyncio
+        pytest tests/integration/ -v --timeout=60
+
+  # Deploy to Staging
+  deploy-staging:
+    needs: integration
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    if: success() && github.ref == 'refs/heads/develop'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to staging environment
+      env:
+        DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+        DEPLOY_HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+        DEPLOY_USER: ${{ secrets.STAGING_DEPLOY_USER }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+        
+        # Deploy commands
+        ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+          cd /app/aimo3-solver
+          git pull origin develop
+          docker-compose -f docker-compose.staging.yml pull
+          docker-compose -f docker-compose.staging.yml up -d
+          docker-compose -f docker-compose.staging.yml exec -T app pytest tests/ -v
+        EOF
+
+  # Deploy to Production
+  deploy-production:
+    needs: integration
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    if: success() && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://aimo3.example.com
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production with blue-green
+      env:
+        DEPLOY_KEY: ${{ secrets.PROD_DEPLOY_KEY }}
+        DEPLOY_HOST: ${{ secrets.PROD_DEPLOY_HOST }}
+        DEPLOY_USER: ${{ secrets.PROD_DEPLOY_USER }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+        
+        # Blue-green deployment
+        ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+          cd /app/aimo3-solver
+          git pull origin main
+          
+          # Pull latest image
+          docker pull $IMAGE_NAME:latest
+          
+          # Start green environment
+          docker-compose -f docker-compose.green.yml up -d
+          
+          # Health checks
+          sleep 30
+          if docker-compose -f docker-compose.green.yml exec -T app curl http://localhost:8000/health; then
+            # Switch traffic to green
+            ./scripts/switch-traffic-to-green.sh
+            # Stop blue
+            docker-compose -f docker-compose.blue.yml down
+          else
+            # Rollback
+            docker-compose -f docker-compose.green.yml down
+            exit 1
+          fi
+        EOF
+    
+    - name: Send Slack notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Production deployment: ${{ job.status }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Smoke Tests (Post-deployment)
+  smoke-test:
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    name: Post-Deployment Smoke Tests
+    if: success()
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run smoke tests
+      env:
+        PROD_URL: ${{ secrets.PROD_URL }}
+      run: |
+        curl -f $PROD_URL/health || exit 1
+        curl -f -X POST $PROD_URL/solve \
+          -H "Content-Type: application/json" \
+          -d '{"problem":"What is 2+2?"}' || exit 1

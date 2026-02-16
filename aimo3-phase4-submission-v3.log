@@ -1,0 +1,42 @@
+[{"stream_name":"stderr","time":10.38072344,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.380780621,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.380788567,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.380791724,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.1459627,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.145995037,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.14599884,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.146001593,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":17.657879763,"data":"✅ Added to sys.path: ../src\n"}
+,{"stream_name":"stderr","time":18.006771883,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":18.006800503,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":18.006807707,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":18.006816203,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":18.006893883,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":18.007037975,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":18.007288026,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":18.007299829,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":18.007305173,"data":"Exception encountered at \"In [3]\":\n"}
+,{"stream_name":"stderr","time":18.007310211,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":18.007315112,"data":"NameError                                 Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":18.007319905,"data":"/tmp/ipykernel_24/3977405520.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":18.007325113,"data":"      1 # Phase 4: Initialize verification components if available\n"}
+,{"stream_name":"stderr","time":18.007330045,"data":"----\u003e 2 if PHASE4_AVAILABLE:\n"}
+,{"stream_name":"stderr","time":18.007337127,"data":"      3     verification_tracker = VerificationTracker()\n"}
+,{"stream_name":"stderr","time":18.007340746,"data":"      4     error_recovery = ErrorRecoveryHandler()\n"}
+,{"stream_name":"stderr","time":18.007345259,"data":"      5     execution_metrics = ExecutionMetrics()\n"}
+,{"stream_name":"stderr","time":18.007352145,"data":"\n"}
+,{"stream_name":"stderr","time":18.007357431,"data":"NameError: name 'PHASE4_AVAILABLE' is not defined\n"}
+,{"stream_name":"stderr","time":18.007363097,"data":"\n"}
+,{"stream_name":"stderr","time":20.188715018,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":20.188751482,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":20.373952015,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":20.373995776,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":21.072232148,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"remove_papermill_header.RemovePapermillHeader\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":21.072283136,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":21.112034929,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":21.414636019,"data":"[NbConvertApp] Writing 28570 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":23.852850074,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"nbconvert.preprocessors.ExtractOutputPreprocessor\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":23.852890287,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":23.880274742,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":24.739231031,"data":"[NbConvertApp] Writing 344541 bytes to __results__.html\n"}
+]
