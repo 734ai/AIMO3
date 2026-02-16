@@ -34,7 +34,7 @@ graph TD
     K --> J
 ```
 
-## 🚀 Key Features
+## Key Features
 
 - **Multi-Model Inference**: Seamlessly switch between **GPT-2** (fast baseline), **Gemma**, **Llama**, and **DeepSeek-R1** based on available resources.
 - **Phase 4 Verification**: Integrated **SymPy** engine to symbolically verify LLM-generated reasoning steps, reducing hallucination by ~15%.
@@ -46,7 +46,7 @@ graph TD
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 AIMO3/
@@ -133,7 +133,7 @@ The system is highly configurable via `src/config.py`. Key settings include:
 
 ---
 
-## 🤝 Contribution
+## Contribution
 
 1. Fork the repository.
 2. Create settings feature branch (`git checkout -b feature/amazing-feature`).
@@ -143,7 +143,7 @@ The system is highly configurable via `src/config.py`. Key settings include:
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
