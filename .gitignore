@@ -4,6 +4,7 @@ __pycache__/
 .kaggle/
 kaggle.json
 hugging-face-key.json
+huggingface-api-key
 *.h5
 *.safetensors
 *.bin
